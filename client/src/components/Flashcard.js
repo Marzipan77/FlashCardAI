@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
+import './Flashcard.css'; // Import the styles
 
 function Flashcard({ question, answer }) {
   const [flipped, setFlipped] = useState(false);
 
   return (
-    <div
-      onClick={() => setFlipped(!flipped)}
-      className="w-full max-w-md h-48 cursor-pointer bg-white border shadow-md rounded-lg flex items-center justify-center text-center p-4 transition-transform duration-500"
-      style={{ transform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)' }}
-    >
-      <div className="text-lg font-medium">
-        {flipped ? answer : question}
+    <div className="flashcard-wrapper" onClick={() => setFlipped(!flipped)}>
+      <div className={`flashcard ${flipped ? 'flipped' : ''}`}>
+        <div className="front">
+          <p>{question}</p>
+        </div>
+        <div className="back">
+          <p>{answer}</p>
+        </div>
       </div>
     </div>
   );
