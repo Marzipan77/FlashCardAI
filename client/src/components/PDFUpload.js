@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import Flashcard from './Flashcard';
 
 function PDFUpload() {
   const [file, setFile] = useState(null);
   const [text, setText] = useState('');
+  const [flashcards, setFlashcards] = useState([]);
 
   const handleUpload = async () => {
     if (!file) return;
@@ -10,27 +12,37 @@ function PDFUpload() {
     const formData = new FormData();
     formData.append('file', file);
 
-    const res = await fetch('http://localhost:8000/upload-pdf/', {
+    const res = await fetch("http://localhost:8000/upload-pdf/", {
       method: 'POST',
       body: formData,
     });
 
     const data = await res.json();
     setText(data.text);
+    setFlashcards(data.flashcards);
   };
 
   return (
-    <div className="p-4">
-      <h2 className="text-xl font-bold mb-2">Upload PDF</h2>
+    <div>
+      <h2>Upload PDF</h2>
       <input type="file" accept="application/pdf" onChange={(e) => setFile(e.target.files[0])} />
-      <button onClick={handleUpload} className="mt-2 px-4 py-2 bg-blue-500 text-white rounded">
-        Upload
-      </button>
+      <button onClick={handleUpload}>Upload</button>
 
       {text && (
-        <div className="mt-4 whitespace-pre-wrap p-2 border rounded bg-gray-100">
-          <h3 className="font-semibold mb-1">Extracted Text:</h3>
-          <pre>{text}</pre>
+        <div style={{ marginTop: '1rem' }}>
+          <h3>Extracted Text:</h3>
+          <p>{text}</p>
+        </div>
+      )}
+
+      {flashcards.length > 0 && (
+        <div style={{ marginTop: '2rem' }}>
+          <h3>Flashcards from PDF</h3>
+          <div className="space-y-4">
+            {flashcards.map((fc, idx) => (
+              <Flashcard key={idx} question={fc.question} answer={fc.answer} />
+            ))}
+          </div>
         </div>
       )}
     </div>
