@@ -35,11 +35,13 @@ def generate_flashcards_with_gpt(text):
     client = OpenAI()  # will use your .env key
 
     prompt = (
-        "Generate 5 study flashcards (question and answer) from the following text:\n\n"
-        f"{text}\n\n"
-        "Format as JSON like:\n"
-        '[{"question": "...", "answer": "..."}]'
+    "You are an educational assistant.\n"
+    "Generate 5 short, clear study flashcards from this PDF content.\n\n"
+    f"{text[:1500]}\n\n"
+    "Output as a JSON list like:\n"
+    "[{\"question\": \"...\", \"answer\": \"...\"}]"
     )
+
 
     try:
         response = client.chat.completions.create(
@@ -83,7 +85,7 @@ def extract_basic_flashcards(chunks):
 
 # --- Route: PDF upload and flashcard generation ---
 @app.post("/upload-pdf/")
-async def upload_pdf(file: UploadFile = File(...)):
+async def upload_pdf(file: UploadFile = File(...), use_gpt: bool = True):
     contents = await file.read()
     doc = fitz.open(stream=contents, filetype="pdf")
     text = ""
@@ -94,11 +96,14 @@ async def upload_pdf(file: UploadFile = File(...)):
     chunks = split_into_chunks(cleaned)
     gpt_input = " ".join(chunks[:8])  # Send ~first 8 sentences to GPT
 
-    flashcards = generate_flashcards_with_gpt(gpt_input)
+    flashcards = []
+    if use_gpt:
+        flashcards = generate_flashcards_with_gpt(gpt_input)
 
-    # Optional fallback if GPT failed
+# Fallback if GPT failed or use_gpt is False
     if not flashcards:
         flashcards = extract_basic_flashcards(chunks)
+
 
     print("EXTRACTED SENTENCES:", chunks)
     print("GENERATED FLASHCARDS:", flashcards)

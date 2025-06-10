@@ -12,7 +12,7 @@ function PDFUpload() {
     const formData = new FormData();
     formData.append('file', file);
 
-    const res = await fetch("http://localhost:8000/upload-pdf/", {
+    const res = await fetch('http://127.0.0.1:8000/upload-pdf/?use_gpt=true', {
       method: 'POST',
       body: formData,
     });
